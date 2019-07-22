@@ -38,15 +38,41 @@
     ````
 3. 编写react的渲染代码，使用上面提到的新建js文件`react_use.js`，
     ````js
-    const reactComponent = React.createElement(
+    const ReactChildComponent = React.createElement(
+        'p', // 元素/组价 html元素或者大写字母开头的React节点
+        { style: { color: 'red', paddingTop: 10 } }, // 属性对象 props
+        '子组件' // 子元素/子组件
+        );
+    const ReactComponent = React.createElement(
         'div', // 元素/组价 html元素或者大写字母开头的React节点
         { onClick: () => this.setState({ liked: true }) }, // 属性对象 props
-        'Like' // 子元素/子组件
+        reactChildComponent // 子元素/子组件
         );
+    
     const domContainer = document.querySelector('#react_container'); // root_react_container 或者使用整夜页面的id
-    ReactDOM.render(e(LikeButton), domContainer);   // 把react生成的节点塞入dom容器节点中
+    ReactDOM.render(ReactComponent, domContainer);   // 把react生成的节点塞入dom容器节点中
     ````
-4. 完成了。
+4. 已经完成了，但是上面的书写会随着节点层级的增加，嵌套深度会线性增加，可读性看起来不太友好，react在这方面提出了JSX*JavaScript XML*的概念来优化这一点*react不依赖jsx，但是可以提高效率和可读性*，上面的部分可以如此修改：
+    ````js
+    const ReactComponent = <div onClick={() => this.setState({ liked: true })}>
+            <p>子组件</p>
+        </div>;
+    {/* root_react_container 或者使用整夜页面的id */}
+    const domContainer = document.querySelector('#react_container'); 
+    {/* 把react生成的节点塞入dom容器节点中 */}
+    ReactDOM.render(ReactComponent, domContainer);   
+    ````
+    不过由于JSX并不是浏览器原生支持的，所以想使用和尝试的话，需要把JSX编译成常规的js，也就是把jsx还原成上面书写方式，很幸运，babel完成了这一项工作，我们可以通过引入babel来完成jsx的编译，
+    ````html
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    ````
+    可以在任何 `<script>` 标签内使用 JSX，方法是在为其添加 `type="text/babel"`属性；这种方式适合于学习和创建简单的示例。然而，它会使你的网站变慢，并且不适用于生产环境。
+5. 单独支持JSX的使用，安装node即可，本质上，添加 JSX 就像添加 CSS 预处理器一样。唯一的要求是你在计算机上安装了 Node.js。在终端上跳转到你的项目文件夹，然后粘贴这两个命令：
+    * 步骤 1： 执行 npm init -y （如果失败，这是修复办法）
+    * 步骤 2： 执行 npm install babel-cli@6 babel-preset-react-app@3
+    * 执行：`npx babel --watch src/react_use.js --out-dir . --presets react-app/prod `
+    会生监听路径下文件`src/react_use.js`，生成编译后的`react_use.js`, 这样，在旧浏览器上也能够使用现代 JavaScript 的语法特性，比如 class。
+
 
 ## 使用官方的构建工具Create React App
 
