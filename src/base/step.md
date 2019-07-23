@@ -75,16 +75,61 @@
 
 
 ## 使用官方的构建工具Create React App
+上面的方法的确可以快速的无污染的引入react，但是这并不是最完美的方案，我们可以使用一些工具链或者脚手架之类的完成更多的事情：
+1. 大规模的组织组件
+2. 使用第三方的开源包
+3. 灵活的开发css和js
+4. 优化编译后的产出文件
 
-### 安装
+react团队针对不同的常见，建议大家使用不同的工具链来辅助开发：
+1. 对于学习react或者创建一个单页应用SPA，可以使用Create React App
+2. 如果是需要完成node服务端的渲染的话可以考虑使用Next.js
+3. 如果是一个静态的内容导向站点，可以考虑使用[Gatsby](https://github.com/gatsbyjs/gatsby)
+4. 当然如果是搭建组件库，需要更灵活的工具链，包括以下三部分组成：
+    * node包管理器Yarn or npm. 可以使用第三方的库以及更新版本管理等操作
+    * 打包工具webpack或者parcel等，可以根据需要打包成合适的产出
+    * 编译器babel，可以使得书写的代码可以在陈旧版本的浏览器上正常运行
 
-### 使用
+我们重点讲解如何使用官方的Create React App来构建react应用
+### Create React App使用
+这里是简单的描述Create React App使用和提供的功能，完整的Create React App内容还是需要去[Create React App官网](https://facebook.github.io/create-react-app/docs/getting-started)，Create React App本身使得你不用关注babel和webpack的配置【虽然是使用webpack+babel来实现的】，只需要关注代码本身，
 
+快速开始：
+````
+npx create-react-app my-app
+cd my-app
+npm start
+````
+生成一个如下结构的文件夹：
+````
+my-app
+├── README.md
+├── node_modules
+├── package.json
+├── .gitignore
+├── public
+│   ├── favicon.ico
+│   ├── index.html
+│   └── manifest.json
+└── src
+    ├── App.css
+    ├── App.js
+    ├── App.test.js
+    ├── index.css
+    ├── index.js
+    ├── logo.svg
+    └── serviceWorker.js
+````
+就可以在 http://localhost:3000/ 访问到一个demo页面了；
+
+同时create-react-app还有开启很多webpack的功能：
+1. css-module的能力
+2. code-split的能力
 
 ## 已有的webpack项目的引用
+对于其他的webpack的项目，引入react很简单，就像正常的npm包一样使用，但是使用 babel需要处理jsx语法，
 
+不过我们一个工程可能会存在很多目录，我们需要确定我们的react版本，同时也需要判断是不是各个使用当前最新版本的react，
 
-## 各种方式的区别
-1. jsx
-2. 版本
-3. 渲染
+1. 使用相同版本react，可以考虑使用当前最新的版本，然后整个工程使用这个版本，并使用npn-loack或者yarn-lock的方式锁定版本
+2. 使用webpack的外部扩展externals字段来使用各页面引入的react和reactDOM，可以每个页面使用不同的版本react。
