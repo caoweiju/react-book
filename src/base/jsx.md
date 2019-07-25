@@ -54,11 +54,50 @@ const element = (
 
 JSX还可以防止注入攻击，React DOM 在渲染所有输入内容之前，默认会进行转义。它可以确保在你的应用中，永远不会注入那些并非自己明确编写的内容。所有的内容在渲染之前都被转换成了字符串。这样可以有效地防止 XSS（cross-site-scripting, 跨站脚本）攻击。
 
-
-## JSX的深度使用
-
-
 ## JSX的本质
-从本质上来讲，JSX最终是要表示对象，JSX的语法是名为 `React.createElement() `函数的语法糖，
+从本质上来讲，JSX最终是要表示对象，JSX的语法是名为 `React.createElement() `函数的语法糖，以下两种示例代码完全等效：
+````js
+const element = (
+  <h1 className="greeting">
+    Hello, world!
+  </h1>
+);
+````
+````js
+const element = React.createElement(
+  'h1', // tagname
+  {className: 'greeting'},  // props
+  'Hello, world!' // 子元素 children
+);
+````
+
+`React.createElement()` 会预先执行一些检查，以帮助你编写无错代码，但实际上它创建了一个这样的对象：
+````js
+// 注意：这是简化过的结构
+const element = {
+  type: 'h1',
+  props: {
+    className: 'greeting',
+    children: 'Hello, world!'
+  }
+};
+````
+这些对象被称为 “React 元素”。它们描述了你希望在屏幕上看到的内容。React 通过读取这些对象，然后使用它们来构建 DOM 以及保持随时更新。
 
 
+## React渲染
+使用JSX就是能够方便开发者书写想要的界面，而这些内容最好是要渲染成真正的HTML展示的，元素是构成 React 应用的最小砖块。元素描述了你在屏幕上想看到的内容。`const element = <h1>Hello, world</h1>;`
+> 与浏览器的 DOM 元素不同，React 元素是创建开销极小的普通对象【就是上文提到的JSX对象本质】。React DOM 会负责更新 DOM 来与 React 元素保持一致。
+
+之前有提到，使用React就是把HTML中的某个节点完全交个React来管理和渲染更新，想要将一个 React 元素渲染到根 DOM 节点中，只需把它们一起传入 ReactDOM.render()，
+````js
+// HTML中交给React管理的跟节点 一般是body元素下的唯一节点
+<div id="root"></div>
+// react 部分
+const element = <h1>Hello, world</h1>;
+ReactDOM.render(element, document.getElementById('root'));
+````
+
+渲染完成之后，我们知道很多时候通过一些交互，我们需要完成更新，我们可以通过修改JSX元素，重新执行ReactDOM.render, ReactDOM会将元素和它的子元素与它们之前的状态进行比较，并只会进行必要的更新来使 DOM 达到预期的状态。这样就可以提高性能，避免不必要的渲染。
+
+那么除了频繁的调用ReactDOM.render外，其实React还提供了方法让开发者自己定位需要修改的内容，只要更新对于元素/组件的props和state就可以，后面将会讲解props和state的具体内容。
