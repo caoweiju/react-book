@@ -4,7 +4,7 @@
 * [react基础](src/base/readme.md)
     * [step-by-step开始](src/base/step.md)
     * [Jsx的学习](src/base/jsx.md)
-    * [props-state-生命周期](src/base/propsState.md)
+    * [组件、props-state-生命周期](src/base/propsState.md)
     * [react的事件](src/base/event.md)
     * [列表优化和条件渲染](src/base/listKey.md)
     * [react表单](src/base/form.md)
