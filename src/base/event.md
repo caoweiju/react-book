@@ -112,3 +112,9 @@ React并不是将click事件绑在该div的真实DOM上，而是在document处�
 
 ### 合成事件的基本实现
 
+1. 通过Fiber中的属性， 将事件统一委托 注册到document上，并为document注册相应的事件回调函数 dispatch函数。
+2. 先获取实际触发元素对应的fiber.
+3. 生成相应的React事件属性event，将对应的回调函数赋值给event._dispatchListeners， 将fiber赋值给event._dispatchInstances
+4. 通过fiber向上遍历， 找到所有的祖先fiber， 并按原生事件的机制先捕获后冒泡的执行事件
+5. 注册一个react节点， 为其注册一个监听事件并触发来执行事件回调函数
+6. 最后，根据用户的设置， 决定是否释放事件。
