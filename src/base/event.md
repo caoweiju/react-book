@@ -85,8 +85,29 @@ class Toggle extends React.Component {
 在 React 中另一个不同点是你不能通过返回 false 的方式阻止默认行为。你必须显式的使用 preventDefault 。
 
 
-
 ## 简单了解原理
+>如果DOM上绑定了过多的事件处理函数，整个页面响应以及内存占用可能都会受到影响。React为了避免这类DOM事件滥用，同时屏蔽底层不同浏览器之间的事件系统差异，实现了一个中间层——SyntheticEvent。
+
+React并不是将click事件绑在该div的真实DOM上，而是在document处监听所有支持的事件，当事件发生并冒泡至document处时，React将事件内容封装并交由真正的处理函数运行。
+
+其中，由于event对象是复用的【因为react使用了事件池机制来管理事件】，事件处理函数执行完后，属性会被清空，所以event的属性无法被异步访问，详情请查阅event-pooling。
+
+合成事件是通过点击事件的冒泡来完成的，整体过程如下：
+1. 绑定onClick事件
+2. react-dom的render/hydrate方法将会有document代理所有绑定了onClick事件的元素/组件；
+3. 发生点击时，事件冒泡到了document上，在事件池中找到空闲合成事件，设置为本次合成事件，绑定对应的属性和方法；
+4. 顺序执行整个冒泡过程中的所有事件回调
+
+### 合成事件注意事项
+鉴于react的事件机制，在和DOM event同时使用的时候，需要注意事件的顺序；大致的顺序如下：
+1. 父元素的dom event的捕获事件
+2. 子组件的dom event的捕获事件
+3. 子组件的dom event的冒泡事件
+4. 父组件的dom event的冒泡事件
+5. 父元素的react event的捕获事件
+6. 子组件的react event的捕获事件
+7. 子组件的react event的冒泡事件
+8. 父组件的react event的冒泡事件
 
 
 ### 合成事件的基本实现
