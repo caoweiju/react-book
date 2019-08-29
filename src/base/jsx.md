@@ -45,6 +45,7 @@ const element = (
 );
 ````
 ### JSX的特性
+>jsx的自定义组件名字必须是大写字母开头, 由于 JSX 会编译为 React.createElement 调用形式，所以 React 库也必须包含在 JSX 代码作用域内。
 
 就像我们看到的，JSX包括了UI部分的HTML元素，那么就可以添加各种属性，而JSX支持两种引入属性的方式，
 * 字符串字面量,仅支持字符串：`const element = <div tabIndex="0"></div>;`
@@ -53,6 +54,126 @@ const element = (
 > 因为 JSX 语法上更接近 JavaScript 而不是 HTML，所以 React DOM 使用 camelCase（小驼峰命名）来定义属性的名称，而不使用 HTML 属性名称的命名约定。例如，JSX 里的 class 变成了 className，而 tabindex 则变为 tabIndex。
 
 JSX还可以防止注入攻击，React DOM 在渲染所有输入内容之前，默认会进行转义。它可以确保在你的应用中，永远不会注入那些并非自己明确编写的内容。所有的内容在渲染之前都被转换成了字符串。这样可以有效地防止 XSS（cross-site-scripting, 跨站脚本）攻击。
+
+jsx还支持点语法：
+````jsx
+  // 由于 JSX 会编译为 React.createElement 调用形式，所以 React 库也必须包含在 JSX 代码作用域内。
+  import React from 'react';
+
+  const MyComponents = {
+    DatePicker: function DatePicker(props) {
+      return <div>Imagine a {props.color} datepicker here.</div>;
+    }
+  }
+  function BlueDatePicker() {
+    return <MyComponents.DatePicker color="blue" />;
+  }
+````
+
+jsx通用支持运行时来选择渲染的组件写法
+````jsx
+import React from 'react';
+import { PhotoStory, VideoStory } from './stories';
+
+const components = {
+  photo: PhotoStory,
+  video: VideoStory
+};
+
+function Story(props) {
+  // 正确！JSX 类型可以是大写字母开头的变量。
+  const SpecificStory = components[props.storyType];
+  return <SpecificStory story={props.story} />;
+}
+````
+
+jsx允许开发者把包裹在 {} 中的 JavaScript 表达式作为一个 prop 传递给 JSX 元素。if 语句以及 for 循环不是 JavaScript 表达式，所以不能在 JSX 中直接使用。但是，你可以用在 JSX 以外的代码中；Props 默认值为 “True”
+
+````jsx
+  function NumberDescriber(props) {
+    let description;
+    if (props.number % 2 == 0) {
+      description = <strong>even</strong>;
+    } else {
+      description = <i>odd</i>;
+    }
+    return <div>{props.number} is an {description} number</div>;
+  }
+  // 一下两行等价
+  <MyTextBox autocomplete />
+
+  <MyTextBox autocomplete={true} />
+````
+
+jsx同样支持属性展开
+````jsx
+  const Button = props => {
+    const { kind, ...other } = props;
+    const className = kind === "primary" ? "PrimaryButton" : "SecondaryButton";
+    return <button className={className} {...other} />;
+  };
+
+  const App = () => {
+    return (
+      <div>
+        <Button kind="primary" onClick={() => console.log("clicked!")}>
+          Hello World!
+        </Button>
+      </div>
+    );
+  };
+````
+
+jsx子元素的类型可以使很多种：
+1. 字符串字面量：JSX 会移除行首尾的空格以及空行。与标签相邻的空行均会被删除，文本字符串之间的新行会被压缩为一个空格。
+    ````jsx
+    // 一下几行是一样的
+    <div>Hello World</div>
+
+    <div>
+      Hello World
+    </div>
+
+    <div>
+      Hello
+      World
+    </div>
+
+    <div>
+
+      Hello World
+    </div>
+    ````
+2. jsx元素：单个元素，混合元素，或者存储在数组中的一组元素
+    ````jsx
+    <MyContainer>
+      <MyFirstComponent />
+      <MySecondComponent />
+    </MyContainer>
+
+    <div>
+      Here is a list:
+      <ul>
+        <li>Item 1</li>
+        <li>Item 2</li>
+      </ul>
+    </div>
+
+    render() {
+      // 不需要用额外的元素包裹列表元素！
+      return [
+        // 不要忘记设置 key :)
+        <li key="A">First item</li>,
+        <li key="B">Second item</li>,
+        <li key="C">Third item</li>,
+      ];
+    }
+    ````
+3. javascript表达式/函数: `{}`大把括号包围的，可以使开发者结合使用的长比较多。
+
+
+jsx对于一下额子元素：false, null, undefined, and true处理，虽然都是合法的子元素。但它们并不会被渲染。但是其他的伪真数值会被渲染: `0`
+
 
 ## JSX的本质
 从本质上来讲，JSX最终是要表示对象，JSX的语法是名为 `React.createElement() `函数的语法糖，以下两种示例代码完全等效：
