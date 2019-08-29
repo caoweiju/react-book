@@ -12,7 +12,7 @@
     * [defaultProps和props-type的学习](src/advance/staticprops.md)
     * [ref的学习](src/advance/ref.md)
     * [Portal和Fragment的学习](src/advance/portal.md)
-    * [边界错误的学习]src/(advance/error.md)
+    * [边界错误的学习](src/advance/error.md)
     * [context的学习](src/advance/context.md)
     * [高阶组件的学习](src/advance/hoc.md)
     * [代码分割、React.lazy以及性能优化](src/advance/others.md)

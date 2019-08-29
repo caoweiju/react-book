@@ -177,3 +177,14 @@ render() {
 ````
 
 **需要注意的是`defaultProps`最好不要 `PropTypes.any.isRequired`一起使用在同一个属性上,**
+
+## 其他的static属性和特殊属性
+static属性：
+1. getDerivedStateFromProps 生命周期，返回新的state状态
+
+特殊属性：
+1. children，是一个特殊的 prop，通常由 JSX 表达式中的子组件组成，而非组件本身定义。
+2. calssName 对于htmlElement而已就是class属性，对于自定义属性就是正常使用
+3. style 属性对于htmlElement而已就是style属性，对于自定义属性就是正常使用
+4. ref 属性，是用于标记当前元素/组件的实例/节点
+5. key 属性，一般而言是列表子项的唯一标识，用提提高diff性能，其他场景正常使用
