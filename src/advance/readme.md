@@ -8,7 +8,7 @@
 2. ref的学习和使用
 3. Portal和Fragment的学习
 4. 边界错误的学习
-5. 高阶组件的学习
-6. context的学习
+5. context的学习
+6. 高阶组件的学习
 7. 代码分割、React.lazy以及性能优化
 

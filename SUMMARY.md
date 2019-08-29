@@ -1,7 +1,6 @@
 # Summary
 
 * [总体介绍](README.md)
-* [react基础](src/base/readme.md)
     * [step-by-step开始](src/base/step.md)
     * [Jsx的学习](src/base/jsx.md)
     * [组件、props-state-生命周期](src/base/propsState.md)
@@ -12,10 +11,11 @@
 * [React进阶学习](src/advance/readme.md)
     * [defaultProps和props-type的学习](src/advance/staticprops.md)
     * [ref的学习](src/advance/ref.md)
-    * [context的学习](src/advance/context.md)
     * [Portal和Fragment的学习](src/advance/portal.md)
     * [边界错误的学习]src/(advance/error.md)
+    * [context的学习](src/advance/context.md)
     * [高阶组件的学习](src/advance/hoc.md)
+    * [代码分割、React.lazy以及性能优化](src/advance/others.md)
 * [hooks学习](src/hooks/readme.md)
     * [](src/hooks/readme.md)
 * [顶层API的学习和使用](src/api/readme.md)
