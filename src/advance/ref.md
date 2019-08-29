@@ -88,6 +88,114 @@
         * 如果 ref 回调函数是以内联函数的方式定义的，在更新过程中它会被执行两次，第一次传入参数 null，然后第二次会传入参数 DOM 元素。这是因为在每次渲染时会创建一个新的函数实例，所以 React 清空旧的 ref 并且设置新的。通过将 ref 的回调函数定义成 class 的绑定函数的方式可以避免上述问题，但是大多数情况下它是无关紧要的。
 
 ## 深度实践
+通过refs的使用，我们可以完成一些我们想要的工作；
+1. 父组件直接调用子组件的方法
+    ````jsx
+    // 子组件
+    class ChildComponent extends React.Component {
+        constructor(props) {
+            super(props);
+            this.myRef = React.createRef();
+        }
+        focusInput = () => {
+            this.myRef.current.focus()
+        }
+        render() {
+            return <div>
+                <input type="text" ref={this.myRef} />
+            </div>;
+        }
+    }
+    // 父组件
+    class ParentComponent extends React.Component {
+        constructor(props) {
+            super(props);
+            this.textInput = React.createRef();
+        }
 
+        componentDidMount() {
+            // this.textInput.current 就是当前ChildComponent组件的实例 可以直接调用子组件的实例方法focusInput
+            this.textInput.current.focusTextInput();
+        }
 
+        render() {
+            return (
+                <ChildComponent ref={this.textInput} />
+            );
+        }
+    }
+    ````
+2. 父组件获取子组件的某个dom节点并操作：【有以下几种形式】
+    * 通过顶级API：React.forwardRef进行refs的转发，仅限16.3及以上版本
+        ````jsx
+            const FancyButton = React.forwardRef((props, ref) => (
+            <button ref={ref} className="FancyButton">
+                {props.children}
+            </button>
+            ));
+
+            // 你可以直接获取 DOM button 的 ref：
+            const ref = React.createRef();
+            <FancyButton ref={ref}>Click me!</FancyButton>;
+        ````jsx
+        以下是对上述示例发生情况的逐步解释：
+        * 我们通过调用 React.createRef 创建了一个 React ref 并将其赋值给 ref 变量。
+        * 我们通过指定 ref 为 JSX 属性，将其向下传递给 <FancyButton ref={ref}>。
+        * React 传递 ref 给 fowardRef 内函数 (props, ref) => ...，作为其第二个参数。
+        * 我们向下转发该 ref 参数到 <button ref={ref}>，将其指定为 JSX 属性。
+        * 当 ref 挂载完成，ref.current 将指向 <button> DOM 节点。
+    * props传递refs方案, 父组件生成的ref传递
+        ````jsx
+            function CustomTextInput(props) {
+                return (
+                    <div>
+                    <input ref={props.inputRef} />
+                    </div>
+                );
+                }
+
+                class Parent extends React.Component {
+                constructor(props) {
+                    super(props);
+                    this.inputElement = React.createRef();
+                }
+                render() {
+                    return (
+                        <CustomTextInput inputRef={this.inputElement} />
+                    );
+                }
+            }
+        ````
+    * 还有就是直接使用原生JS获取元素节点，需要注意获取时机和节点的存在与否以及子节点的可变性[删除、变更、更新等]
+
+很多时候，一些高阶组件没有通过React.forwardRef转发refs，在获取子组件的时候并没有获取到真是子组件的实例，而是获取了高阶组件封装后额组件实例，这样想要通过其它方式获取组件实例还有其他的办法，也就是通过特定的props，借鉴上面的props获取子组件下的dom节点，可以用来获取子组件的`this`关键字；
+````jsx
+    function CustomTextInput(props) {
+        constructor(props) {
+            super(props)
+            const { getInstance } = props
+            this.textInput = React.createRef();
+            typeof getInstance === 'function' && getInstance(this) // 把子组件实例给到父组件，方便其中的方法能够被其他组件调用
+        }
+        focusInput = () => {
+            this.textInput.current.focus()
+        }
+        return (
+            <div>
+                <input ref={this.textInput} />
+            </div>
+        );
+    }
+
+    class Parent extends React.Component {
+        componentDidMount() {
+            this.childInst && this.childInst.focusInput(); // 直接调用子组件实例
+        }
+        render() {
+            return (
+                <CustomTextInput getInstance={(comp) => { this.childInst = comp }} />
+            );
+        }
+    }
+````
 
