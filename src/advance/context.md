@@ -102,7 +102,7 @@ MyClass.contextType = MyContext;
 <MyContext.Consumer>
   {value => /* 基于 context 值进行渲染*/}
 </MyContext.Consumer>
-````jsx
+````
 
 这里，React 组件也可以订阅到 context 变更。这能让你在函数式组件中完成订阅 context。
 这需要函数作为子元素这种做法。这个函数接收当前的 context 值，返回一个 React 节点。传递给函数的 value 值等同于往上组件树离这个 context 最近的 Provider 提供的 value 值。如果没有对应的 Provider，value 参数等同于传递给 createContext() 的 defaultValue。
@@ -112,6 +112,167 @@ MyClass.contextType = MyContext;
 
 ## context的实践使用
 
+下面是一个使用context的实例：
+
+theme-context.js 主题context文件
+````js
+export const themes = {
+  light: {
+    foreground: '#000000',
+    background: '#eeeeee',
+  },
+  dark: {
+    foreground: '#ffffff',
+    background: '#222222',
+  },
+};
+
+
+// 确保传递给 createContext 的默认值数据结构是调用的组件（consumers）所能匹配的！
+export const ThemeContext = React.createContext({
+  theme: themes.dark,
+  toggleTheme: () => {},
+});
+````
+消费context的组件：themed-button.js，通过contextType将主题context引入到组件this.context上
+````jsx
+import {ThemeContext} from './theme-context';
+
+class ThemedButton extends React.Component {
+  render() {
+    let props = this.props;
+    let theme = this.context;
+    return (
+      <button
+        {...props}
+        style={{backgroundColor: theme.background}}
+      />
+    );
+  }
+}
+ThemedButton.contextType = ThemeContext;
+
+export default ThemedButton;
+````
+
+theme-toggler-button.js 支持函数组件，可以修改context
+````jsx
+import {ThemeContext} from './theme-context';
+
+function ThemeTogglerButton() {
+  // Theme Toggler 按钮不仅仅只获取 theme 值，它也从 context 中获取到一个 toggleTheme 函数
+  return (
+    <ThemeContext.Consumer>
+      {({theme, toggleTheme}) => (
+        <button
+          onClick={toggleTheme}
+          style={{backgroundColor: theme.background}}>
+
+          Toggle Theme
+        </button>
+      )}
+    </ThemeContext.Consumer>
+  );
+}
+
+export default ThemeTogglerButton;
+````
+
+app.js，入口文件，引入context，并支持修改context，将顶级组件的state传入context，在state变更时会引起context的变更，从而使得消费context的组件进行更新渲染。
+````jsx
+import {ThemeContext, themes} from './theme-context';
+import ThemeTogglerButton from './theme-toggler-button';
+
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.toggleTheme = () => {
+      this.setState(state => ({
+        theme:
+          state.theme === themes.dark
+            ? themes.light
+            : themes.dark,
+      }));
+    };
+
+    // State 也包含了更新函数，因此它会被传递进 context provider。
+    this.state = {
+      theme: themes.light,
+      toggleTheme: this.toggleTheme,
+    };
+  }
+
+  render() {
+    // 整个 state 都被传递进 provider
+    return (
+      <ThemeContext.Provider value={this.state}>
+        <Content />
+      </ThemeContext.Provider>
+    );
+  }
+}
+
+function Content() {
+  return (
+    <div>
+      <ThemeTogglerButton />
+    </div>
+  );
+}
+
+ReactDOM.render(<App />, document.root);
+````
+
+如何消费多个context，可以看到如果是还是用static contextType很难消费多个context，所以需要使用Consumer来完成，一个组件是可以消费多个context的；
+````jsx
+// Theme context，默认的 theme 是 “light” 值
+const ThemeContext = React.createContext('light');
+
+// 用户登录 context
+const UserContext = React.createContext({
+  name: 'Guest',
+});
+
+class App extends React.Component {
+  render() {
+    const {signedInUser, theme} = this.props;
+
+    // 提供初始 context 值的 App 组件
+    return (
+      <ThemeContext.Provider value={theme}>
+        <UserContext.Provider value={signedInUser}>
+          <Layout />
+        </UserContext.Provider>
+      </ThemeContext.Provider>
+    );
+  }
+}
+
+function Layout() {
+  return (
+    <div>
+      <Sidebar />
+      <Content />
+    </div>
+  );
+}
+
+// 一个组件可能会消费多个 context
+function Content() {
+  return (
+    <ThemeContext.Consumer>
+      {theme => (
+        <UserContext.Consumer>
+          {user => (
+            <ProfilePage user={user} theme={theme} />
+          )}
+        </UserContext.Consumer>
+      )}
+    </ThemeContext.Consumer>
+  );
+}
+````
 
 
 
