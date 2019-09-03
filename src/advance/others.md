@@ -86,5 +86,9 @@ const App = () => (
 >UI 更新需要昂贵的 DOM 操作，而 React 内部使用几种巧妙的技术以便最小化 DOM 操作次数。对于大部分应用而言，使用 React 时无需专门优化就已拥有高性能的用户界面。尽管如此，你仍然有办法来加速你的 React 应用。
 
 
-性能优化
-Profiler
+性能优化的建议：
+1. 使用production版本的react/react-dom;
+2. 使用webpack等打包工具使需要配置uglifyify简化、terser压缩等操作；
+3. 如果存在性能问题：[使用 Chrome Performance 标签分析组件](https://calibreapp.com/blog/react-performance-profiling-optimization/)
+4. 虚拟化长列表
+5. 使用shouldComponentUpdate可以优化性能，也可以继承 React.PureComponent 以代替手写 shouldComponentUpdate()。它用当前与之前 props 和 state 的浅比较覆写了 shouldComponentUpdate() 的实现。
