@@ -128,7 +128,9 @@ MyComponent.propTypes = {
 * PropTypes.bool PropTypes.func两个使用了缩写
 * PropTypes.node、PropTypes.element、PropTypes.elementType可以使dom元素
 * PropTypes.oneOfType、PropTypes.oneOf 可以使枚举具体的值，也可以约定具体的类型之一
-* PropTypes.shape 、PropTypes.arrayOf、objectOf 规定数组元素 对象类型
+* PropTypes.arrayOf、、PropTypes.objectOf 规定数组元素 对象类型
+* PropTypes.shape 置顶属性的格式
+* 还可以通过函数来自定义判断方式
 
 
 你可以通过 PropTypes.element 来确保传递给组件的 children 中只包含一个元素。
