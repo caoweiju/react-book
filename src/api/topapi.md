@@ -93,7 +93,83 @@
     `React.Children.forEach(children, function[(thisArg)])`，与 React.Children.map() 类似，但它不会返回一个数组。
     3. React.Children.count
     `React.Children.count(children),` 返回 children 中的组件总数量，等同于通过 map 或 forEach 调用回调函数的次数。
+    4. React.Children.only
+    `React.Children.only(children)`, 验证 children 是否只有一个子节点（一个 React 元素），如果有则返回它，否则此方法会抛出错误。
+    5. React.Children.toArray
+    `React.Children.toArray(children)`,将 children 这个复杂的数据结构以数组的方式扁平展开并返回，并为每个子节点分配一个 key。当你想要在渲染函数中操作子节点的集合时，它会非常实用，特别是当你想要在向下传递 this.props.children 之前对内容重新排序或获取子集时。
 
+## 片段
+React的16.3开始，`React.Fragment` 组件能够在不额外创建 DOM 元素的情况下，让 render() 方法中返回多个元素。
+````jsx
+render() {
+  return (
+    <React.Fragment>
+      Some text.
+      <h2>A heading</h2>
+    </React.Fragment>
+  );
+}
+````
+你也可以使用其简写语法 <></>，但是不支持添加属性。
+
+## ref相关
+1. React.createRef
+    React.createRef 创建一个能够通过 ref 属性附加到 React 元素的 ref。
+    ````jsx
+    class MyComponent extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.inputRef = React.createRef();
+    }
+
+    render() {
+        return <input type="text" ref={this.inputRef} />;
+    }
+
+    componentDidMount() {
+        this.inputRef.current.focus();
+    }
+    }
+    ````
+2. React.forwardRef
+    React.forwardRef 会创建一个React组件，这个组件能够将其接受的 ref 属性转发到其组件树下的另一个组件中。这种技术并不常见，但在以下两种场景中特别有用：
+    * 转发 refs 到 DOM 组件
+    * 在高阶组件中转发 refs
+    React.forwardRef 接受渲染函数作为参数。React 将使用 props 和 ref 作为参数来调用此函数。此函数应返回 React 节点。
+    ````jsx
+    const FancyButton = React.forwardRef((props, ref) => (
+    <button ref={ref} className="FancyButton">
+        {props.children}
+    </button>
+    ));
+
+    // You can now get a ref directly to the DOM button:
+    const ref = React.createRef();
+    <FancyButton ref={ref}>Click me!</FancyButton>;
+    ````
+
+## 异步加载
+1. React.lazy
+    React.lazy() 允许你定义一个动态加载的组件。这有助于缩减 bundle 的体积，并延迟加载在初次渲染时未用到的组件。
+    `const SomeComponent = React.lazy(() => import('./SomeComponent'));`, 请注意，渲染 lazy 组件依赖该组件渲染树上层的 <React.Suspense> 组件。这是指定加载指示器（loading indicator）的方式。
+2. React.Suspense
+    React.Suspense 可以指定加载指示器（loading indicator），以防其组件树中的某些子组件尚未具备渲染条件。目前，懒加载组件是 <React.Suspense> 支持的唯一用例：
+    ````jsx
+    // 该组件是动态加载的
+    const OtherComponent = React.lazy(() => import('./OtherComponent'));
+
+    function MyComponent() {
+    return (
+        // 显示 <Spinner> 组件直至 OtherComponent 加载完成
+        <React.Suspense fallback={<Spinner />}>
+        <div>
+            <OtherComponent />
+        </div>
+        </React.Suspense>
+    );
+    }
+    ````
 
 
 
