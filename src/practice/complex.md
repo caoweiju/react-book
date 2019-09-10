@@ -14,6 +14,7 @@ props和this的问题
 
 onClick的默认第一个参数是 event，需要注意；以及onClick对应函数的this绑定问题；
 
+## props的不变性
 
 ## jsx的一些技巧
 
