@@ -36,6 +36,18 @@ class Welcome extends React.Component {
 
 还有一个已经过时的`UNSAFE_componentWillMount()`;是在`constructor`和`render`之间调用；
 
+#### 构造函数constructor()
+
+
+#### 类方法getDerivedStateFromProps
+
+
+#### 渲染方法render
+
+
+#### 完成挂载componentDidMount
+
+
 ### 组件更新
 当组件的 props 或 state 发生变化时会触发更新。组件更新的生命周期调用顺序如下：
 * static getDerivedStateFromProps()
@@ -48,11 +60,24 @@ class Welcome extends React.Component {
 
 >注意:下述方法即将过时，在新代码中应该避免使用它们：`UNSAFE_componentWillUpdate()`、`UNSAFE_componentWillReceiveProps()`
 
+#### 类方法getDerivedStateFromProps
+
+#### shouldComponentUpdate()
+
+#### 渲染方法render
+
+
+#### getSnapshotBeforeUpdate
+
+
+#### 完成更新componentDidUpdate
+
+
 ### 组件卸载
 当组件从 DOM 中移除时会调用如下方法：
 * componentWillUnmount()
 
-
+#### 准备卸载componentWillUnmount
 
 ## 错误处理
 当渲染过程，生命周期，或子组件的构造函数中抛出错误时，会调用如下方法：
