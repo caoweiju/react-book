@@ -114,42 +114,126 @@ getDerivedStateFromProps 会在调用 render 方法之前调用，并且在初�
 #### 类方法getDerivedStateFromProps
 [参见：类方法getDerivedStateFromProps](#类方法getDerivedStateFromProps)
 #### shouldComponentUpdate()
+`shouldComponentUpdate(nextProps, nextState)`, 根据 shouldComponentUpdate() 的返回值，判断 React 组件的输出是否受当前 state 或 props 更改的影响。默认行为是 state 每次发生变化组件都会重新渲染。大部分情况下，你应该遵循默认行为。
+
+当 props 或 state 发生变化时，shouldComponentUpdate() 会在渲染执行之前被调用。返回值默认为 true。首次渲染或使用 forceUpdate() 时不会调用该方法。
+
+开发者在手动编写此函数时，可以将 this.props 与 nextProps 以及 this.state 与nextState 进行比较，并返回 false 以告知 React 可以跳过更新。
+**请注意，返回 false 并不会阻止子组件在 state 更改时重新渲染。**
+
+如果 `shouldComponentUpdate()` 返回 `false`，则不会调用 `UNSAFE_componentWillUpdate()`，`render()` 和 `componentDidUpdate()`。后续版本，React 可能会将 `shouldComponentUpdate` 视为提示而不是严格的指令，并且，当返回 `false` 时，仍可能导致组件重新渲染。
 
 #### 渲染方法render
 [参见：渲染方法render](#渲染方法render)
 
 #### getSnapshotBeforeUpdate
+`getSnapshotBeforeUpdate(prevProps, prevState)`, `getSnapshotBeforeUpdate()` 在最近一次渲染输出（提交到 DOM 节点）之前调用。它使得组件能在发生更改之前从 DOM 中捕获一些更新之前的信息（例如，滚动位置）可以传递到更新之后的`componentDidUpdate()`中使用。此生命周期的任何返回值将作为参数传递给 `componentDidUpdate()`。
 
+此用法并不常见，但它可能出现在 UI 处理中，如需要以特殊方式处理滚动位置的聊天线程等。应返回 snapshot 的值（或 null）。
 
 #### 完成更新componentDidUpdate
+`componentDidUpdate(prevProps, prevState, snapshot)`，`componentDidUpdate()` 会在更新后会被立即调用。首次挂载渲染不会执行此方法。当组件更新后，可以在此处对 DOM 进行操作。
 
+你也可以在 `componentDidUpdate()` 中直接调用 `setState()`，但请注意它必须被包裹在一个条件语件里，正如上述的例子那样进行处理，否则会导致死循环。
+`componentDidUpdate()` 中调用 `setState()`还会导致额外的重新渲染，不过和`componentDidMount()`一样，不会把中间太渲染在屏幕中，而是等待最后一次的update变更再渲染，所以用户不可见，但还是会影响组件性能。不要将 props “镜像”给 state，请考虑直接使用 props。 欲了解更多有关内容，请参阅为什么 props 复制给 state 会产生 bug。
+
+如果组件实现了 `getSnapshotBeforeUpdate()` 生命周期（不常用），则它的返回值将作为 `componentDidUpdate()` 的第三个参数 `“snapshot”` 参数传递。否则此参数将为 `undefined`。
+
+**注意：如果 shouldComponentUpdate() 返回值为 false，则不会调用 componentDidUpdate()。**
 
 ### 组件卸载
 当组件从 DOM 中移除时会调用如下方法：
 * componentWillUnmount()
 
 #### 准备卸载componentWillUnmount
+`componentWillUnmount()` 会在组件卸载及销毁之前直接调用。在此方法中执行必要的清理操作，例如，清除 timer，取消网络请求或清除在 `componentDidMount()` 中创建的订阅等。
+
+`componentWillUnmount()` 中不应调用 `setState()`，因为该组件将永远不会重新渲染。组件实例卸载后，将永远不会再挂载它。
+
 
 ## 错误处理
 当渲染过程，生命周期，或子组件的构造函数中抛出错误时，会调用如下方法：
 * static getDerivedStateFromError()
 * componentDidCatch()
 
+### static getDerivedStateFromError(error)
+此生命周期会在后代组件抛出错误后被调用。 它将抛出的错误作为参数，并返回一个值以更新 state
+
+### componentDidCatch()
+`componentDidCatch(error, info)`, 此生命周期在后代组件抛出错误后被调用。 它接收两个参数：
+1. error —— 抛出的错误。
+2. info —— 带有 componentStack key 的对象，其中包含有关组件引发错误的栈信息。
+
+### 错误处理的实例
+* `getDerivedStateFromError(error)` 适合:处理UI降级展示
+* `componentDidCatch(error, info)` 适合: 在UI降级展示后 对错误做一些处理记录等操作
+````jsx
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    // 更新 state 使下一次渲染可以显示降级 UI
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, info) {
+    // "组件堆栈" 例子:
+    //   in ComponentThatThrows (created by App)
+    //   in ErrorBoundary (created by App)
+    //   in div (created by App)
+    //   in App
+    logComponentStackToMyService(info.componentStack);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      // 你可以渲染任何自定义的降级 UI
+      return <h1>Something went wrong.</h1>;
+    }
+
+    return this.props.children; 
+  }
+}
+````
+>注意：如果发生错误，你可以通过调用 setState 使用 componentDidCatch() 渲染降级 UI，但在未来的版本中将不推荐这样做。 可以使用静态 getDerivedStateFromError() 来处理降级渲染。
 
 ## 其他API
 组件还提供了一些额外的 API：
+* setState()
+* forceUpdate()
 
-setState()
-forceUpdate()
+### setState
+`setState(updater[, callback])`,
+`setState()` 将对组件 state 的更改排入队列，并通知 React 需要使用更新后的 state 重新渲染此组件及其子组件。这是用于更新用户界面以响应事件处理器和处理服务器数据的主要方式，将 setState() 视为请求而不是立即更新组件的命令。为了更好的感知性能，React 会延迟调用它，然后通过一次传递更新多个组件。React 并不会保证 state 的变更会立即生效。
 
+setState() 并不总是立即更新组件。它会批量推迟更新。这使得在调用 setState() 后立即读取 this.state 成为了隐患。为了消除隐患，请使用 componentDidUpdate 或者 setState 的回调函数（setState(updater, callback)），
+
+1. 第一个参数updater，
+    * 可以是函数：`(state, props) => stateChange`, state 是对应用变化时组件状态的引用。当然，它不应直接被修改。你应该使用基于 state 和 props 构建的新对象来表示变化。例如，假设我们想根据 props.step 来增加 state：
+    ````jsx
+    this.setState((state, props) => {
+      return {counter: state.counter + props.step};
+    });
+    ````
+    updater 函数中接收的 state 和 props 都保证为最新。updater 的返回值会与 state 进行浅合并。
+    * 可以是state对象，`this.setState({quantity: 2})`, 这种形式的 setState() 也是异步的，并且在同一周期内会对多个 setState 进行批处理。这会使得在同意周期内多次setState传递的对象会做合并处理，如果需要依赖使用生命周期内其他的setState的值，可以使用函数作为第一个参数，因为函数中获取的都是最新的。
+2. 第二个参数：`setState()` 的第二个参数为可选的回调函数，它将在 setState 完成合并并重新渲染组件后执行。通常，我们建议使用 componentDidUpdate() 来代替此方式。
+
+### forceUpdate
+`component.forceUpdate(callback)`, 默认情况下，当组件的 state 或 props 发生变化时，组件将重新渲染。如果 render() 方法依赖于其他数据，则可以调用 `forceUpdate()` 强制让组件重新渲染。
+
+调用 `forceUpdate()` 将致使组件调用 `render()` 方法，此操作会跳过该组件的 `shouldComponentUpdate()`。但其子组件会触发正常的生命周期方法，包括 `shouldComponentUpdate()` 方法。如果标记发生变化，React 仍将只更新 DOM。
+
+通常你应该避免使用 `forceUpdate()`，尽量在 `render()` 中使用 `this.props` 和 `this.state`。
 
 ## class属性
-defaultProps
-propTypes
-displayName
-contextType
-
-
+* defaultProps
+* propTypes
+* displayName
+* contextType
 
 ## 实例属性
 props
