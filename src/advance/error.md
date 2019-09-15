@@ -51,8 +51,9 @@ class ErrorBoundary extends React.Component {
 具有 `render prop` 的组件接受一个函数，该函数返回一个 React 元素并调用它而不是实现自己的渲染逻辑。
 ````jsx
 <DataProvider render={data => (
-  <h1>Hello {data.target}</h1>
-)}/>
+    <h1>Hello {data.target}</h1>
+  )}
+/>
 ````
 
 看一个`render prop`的实例：
@@ -61,7 +62,11 @@ class Cat extends React.Component {
   render() {
     const mouse = this.props.mouse;
     return (
-      <img src="/cat.jpg" style={{ position: 'absolute', left: mouse.x, top: mouse.y }} />
+      <div
+        src="cat.jpg"
+      >
+          'position': 'absolute', 'left': {mouse.x}, 'top': {mouse.y},
+      </div>
     );
   }
 }
@@ -82,7 +87,7 @@ class Mouse extends React.Component {
 
   render() {
     return (
-      <div style={{ height: '100%' }} onMouseMove={this.handleMouseMove}>
+      <div onMouseMove={this.handleMouseMove}>
 
         {/*
           Instead of providing a static representation of what <Mouse> renders,
