@@ -117,13 +117,95 @@ React并不是将click事件绑在该div的真实DOM上，而是在document处�
 ## React.PureComponent
 
 
+
 ## props的不变性
 
 
 ## key使用index可能存在的问题
-主要是而非受控组件和key：index一起使用时，可能存在展示的错误。
-https://medium.com/@robinpokorny/index-as-a-key-is-an-anti-pattern-e0349aece318
+一个存在问题的场景：非受控组件和key：index一起使用时，可能存在展示的错误。
 
+复现还原：
+- 一个非受控input表单数组，包含多个input输入框
+- 分别在输入框中一些内容
+- 在数组头部新增一个input表单
+- 由于key是index，所以出现了诡异现象，头部插入的表单的值是未插入之前第一个表单的值。
 
+[具体查看场景](https://medium.com/@robinpokorny/index-as-a-key-is-an-anti-pattern-e0349aece318)
+````jsx
+// noprotect
+class Item extends React.Component {
+  render() {
+    return (
+      <div className="form-group">
+        <label className="col-xs-4 control-label">{this.props.name}</label>
+        <div className="col-xs-8">
+          <input type='text' className='form-control' />
+        </div>
+      </div>
+    )
+  }
+}
 
+class Example extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      list: [
+        {name: 'Foo1444610101010', id: 1444610101010},
+        {name: 'Bar1444600000000', id: 1444600000000}
+      ]
+    };
+  }
+  
+  userInput() {
+    const firstItems = Array.from(document.querySelectorAll('.form-group:first-child input'));
+    firstItems.forEach((item) => item.value = 'It is ' + (new Date()).toTimeString())
+    
+  }
+  
+  addItem() {
+    const id = +new Date;
+    this.setState({
+      list: [ {name: 'Baz' + id, id} , ...this.state.list]
+    });
+  }
+  
+  render() {
+    return (
+      <div>
+        <b>How to use: </b>
+        First write something in the inputs
+        (or <a href='#' onClick={this.userInput}>simulate it</a>).
+        Then hit <em>Add item</em> and see what happens…
+        <hr/>
+        <button className='btn btn-primary' onClick={this.addItem.bind(this)}><b>Add item</b> to the beginning of the list</button>
+      
 
+        <h3>Dangerous <code>key=index</code></h3>
+        <form className="form-horizontal">
+            {this.state.list.map((todo, index) =>
+              <Item {...todo}
+              key={index} />
+            )}
+        </form>
+        
+
+        <h3>Better <code>key=id</code></h3>
+        <form className="form-horizontal">
+            {this.state.list.map((todo) =>
+              <Item {...todo}
+              key={todo.id} />
+            )}
+        </form>
+        
+        
+        <hr/>
+        <a href='https://medium.com/p/e0349aece318'>&laquo; Back to the article</a>.
+      </div>
+    )
+  }
+}
+
+React.render(<Example />, document.getElementById('app'))
+````
+![界面表现](./../../asset/imgs/key_index.png)
