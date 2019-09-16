@@ -34,8 +34,11 @@ render props是一种思想，是提高复用组件的一种方法，render prop
 [参见render props详析](./../advance/error.md) 或者官方文档 [render props详析](https://zh-hans.reactjs.org/docs/render-props.html#use-render-props-for-cross-cutting-concerns)
 
 ## context深层级传递
+>Context 提供了一个无需为每层组件手动添加 props，就能在组件树间进行数据传递的方法。
 
+在一个典型的 React 应用中，数据是通过 props 属性自上而下（由父及子）进行传递的，但这种做法对于某些类型的属性而言是极其繁琐的（例如：地区偏好，UI 主题），这些属性是应用程序中许多组件都需要的。Context 提供了一种在组件之间共享此类值的方式，而不必显式地通过组件树的逐层传递 props。
 
+[参见render props详析](./../advance/context.md)
 
 ## ref获取后代组件实例
 在典型的 React 数据流中，props 是父组件与子组件交互的唯一方式。要修改一个子组件，你需要使用新的 props 来重新渲染它。但是，在某些情况下，你需要在典型数据流之外强制修改子组件。被修改的子组件可能是一个 React 组件的实例，也可能是一个 DOM 元素。对于这两种情况，React 都提供了解决办法---refs。
