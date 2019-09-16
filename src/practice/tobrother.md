@@ -7,8 +7,8 @@
 这种方式很好理解，就是讲通信的数据和方法都定义在父组件中，然后分别通过props传递到子组件中，兄弟子组件需要通信的时候分别调用对应方法即可：
 - 父组件定义好子组件A、子组件B需要的数据放在state={a: 0, b: 1}中;
 - 分别定义修改子组件A、子组件B数据的方法，`changeA= (a) => this.setState({a})、changeB = (b) => this.setState({b})`;
-- 将state中的数据a 和 changeB方法传入子组件A，`<ComponentA a={this.state.a} changeB={this.changeB}  />`;
-- 将state中的数据b 和 changeA方法传入子组件A，`<ComponentB a={this.state.b} changeB={this.changeA}  />`;
+- 将state中的数据a和changeB方法传入子组件A，`<ComponentA a={this.state.a} changeB={this.changeB} />`;
+- 将state中的数据b和changeA方法传入子组件A，`<ComponentB a={this.state.b} changeB={this.changeA} />`;
 - 这样就可以在兄弟组件A/B中分别调用changeA/B方法，来改变兄弟组件，实现兄弟组件的联动。
 
 ````jsx
