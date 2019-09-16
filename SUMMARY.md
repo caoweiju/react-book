@@ -26,7 +26,7 @@
 * [问题挖掘和深层实践](src/practice/readme.md)
     * [父子组件通信](src/practice/tochild.md)
     * [兄弟组件通信](src/practice/tobrother.md)
-    * [各层级组件实例使用](src/practice/readme.md)
+    * [其他常见问题](src/practice/complex.md)
 * [底层拆分学习](src/sourcecode/readme.md)
     * [合成事件](src/sourcecode/syntheticevent.md)
     * [createElement的实现](src/sourcecode/createelement.md)
