@@ -30,6 +30,10 @@
 * [底层拆分学习](src/sourcecode/readme.md)
     * [合成事件](src/sourcecode/syntheticevent.md)
     * [createElement的实现](src/sourcecode/createelement.md)
+    * [虚拟DOM的了解](src/sourcecode/virtual_dom.md)
+    * [diff和更新的过程](src/sourcecode/diff.md)
+    * [fiber的引入和简单了解](src/sourcecode/fiber.md)
+    * [react内部的整体流程](src/sourcecode/process_inside.md)
 
 
 
