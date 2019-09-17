@@ -115,10 +115,17 @@ React并不是将click事件绑在该div的真实DOM上，而是在document处�
 可以看到合成事件的捕获事件也是在原生事件的冒泡之后才执行，所以不是严格的捕获/冒泡时期，但是顺序是正常的。
 
 ## React.PureComponent
+React.PureComponent 与 React.Component 很相似。两者的区别在于 React.Component 并未实现 shouldComponentUpdate()，而 React.PureComponent 中以浅层对比 prop 和 state 的方式来实现了该函数。
 
+如果赋予 React 组件相同的 props 和 state，render() 函数会渲染相同的内容，那么在某些情况下使用 React.PureComponent 可提高性能。
+
+>React.PureComponent 中的 shouldComponentUpdate() 仅作对象的浅层比较。如果对象中包含复杂的数据结构，则有可能因为无法检查深层的差别，产生错误的比对结果。仅在你的 props 和 state 较为简单时，才使用 React.PureComponent，此外，React.PureComponent 中的 shouldComponentUpdate() 将跳过所有子组件树的 prop 更新。因此，请确保所有子组件也都是“纯”的组件。
 
 
 ## props的不变性
+不变性是指：
+1. 组件无论是使用函数声明还是通过 class 声明，都决不能修改自身的 props。
+2. 在修改state或者props中的某个属性的时候(特别是引用类型属性)，不要直接修改该属性，而应该赋值给一个新的引用类型，保持之前的props和state的引用类属性的不可变性，否则在Pure.Component等情况下会发生一些其他问题。
 
 
 ## key使用index可能存在的问题
