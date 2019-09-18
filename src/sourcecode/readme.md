@@ -5,7 +5,7 @@
 - 合成事件
 - createElement的内部实现和JSX的原理了解
 - 虚拟DOM的了解
-- diff和更新的过程
+- diff和更新vdom-patch的过程
 - fiber的引入和简单了解
 - react内部的整体流程
 
