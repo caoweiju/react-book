@@ -17,7 +17,11 @@
     * [高阶组件的学习](src/advance/hoc.md)
     * [代码分割、React.lazy以及性能优化](src/advance/others.md)
 * [hooks学习](src/hooks/readme.md)
-    * [hooks的引入](src/hooks/readme.md)
+    * [hooks的引入](src/hooks/base.md)
+    * [useState的学习使用](src/hooks/useState.md)
+    * [useEffect的学习使用](src/hooks/useEffect.md)
+    * [hooks的规则和自定义hooks](src/hooks/rule-selfdefine.md)
+    * [hooks的更多实践](src/hooks/more.md)
 * [顶层API的学习和使用](src/api/readme.md)
     * [React的公开API](src/api/topapi.md)
     * [React.Component的公开API](src/api/component.md)
@@ -26,10 +30,14 @@
 * [问题挖掘和深层实践](src/practice/readme.md)
     * [父子组件通信](src/practice/tochild.md)
     * [兄弟组件通信](src/practice/tobrother.md)
-    * [各层级组件实例使用](src/practice/readme.md)
+    * [其他常见问题](src/practice/complex.md)
 * [底层拆分学习](src/sourcecode/readme.md)
     * [合成事件](src/sourcecode/syntheticevent.md)
     * [createElement的实现](src/sourcecode/createelement.md)
+    * [虚拟DOM的了解](src/sourcecode/virtual_dom.md)
+    * [diff和更新的过程](src/sourcecode/diff.md)
+    * [fiber的引入和简单了解](src/sourcecode/fiber.md)
+    * [react内部的整体流程](src/sourcecode/process_inside.md)
 
 
 
