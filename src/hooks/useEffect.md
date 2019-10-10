@@ -96,4 +96,27 @@ function Example() {
     ````
     >如果你要使用此优化方式，请确保数组中包含了所有外部作用域中会随时间变化并且在 effect 中使用的变量，否则你的代码会引用到先前渲染中的旧变量。  
     如果想执行只运行一次的 effect（仅在组件挂载和卸载时执行），可以传递一个空数组（[]）作为第二个参数。这就告诉 React 你的 effect 不依赖于 props 或 state 中的任何值，所以它永远都不需要重复执行。这并不属于特殊情况 —— 它依然遵循依赖数组的工作方式。  
-    如果你传入了一个空数组（[]），effect 内部的 props 和 state 就会一直拥有其初始值。尽管传入 [] 作为第二个参数更接近大家更熟悉的 componentDidMount 和 componentWillUnmount 思维模式，但我们有更好的方式来避免过于频繁的重复调用 effect。除此之外，**请记得 React 会等待浏览器完成画面渲染之后才会延迟调用 useEffect，**因此会使得额外操作很方便。**需要注意这个和componentDidMount 或 componentDidUpdate不太一样，在componentDidMount 或 componentDidUpdate调用setState的话引起的重新渲染会合并后一起展示到屏幕，不会展示中间状态，但是useEffect会展示中间状态**
+    如果你传入了一个空数组（[]），effect 内部的 props 和 state 就会一直拥有其初始值。尽管传入 [] 作为第二个参数更接近大家更熟悉的 componentDidMount 和 componentWillUnmount 思维模式，但我们有更好的方式来避免过于频繁的重复调用 effect。除此之外，**请记得 React 会等待浏览器完成画面渲染之后才会延迟调用 useEffect，**因此会使得额外操作很方便。**需要注意这个和componentDidMount 或 componentDidUpdate不太一样，在componentDidMount 或 componentDidUpdate调用setState的话引起的重新渲染会合并后一起展示到屏幕，不会展示中间状态，但是useEffect会展示中间状态，不过可以使用useLayoutEffect来达到这个效果**  
+    ````jsx
+    function Counter() {
+      const [count, setCount] = useState(0);
+      const [count1, setCount1] = useState(0);
+      // useInterval(() => {
+      //   // Your custom logic here
+      //   setCount(count + 1);
+      // }, 1000);
+      useEffect(() => {
+        if(count1 < 50) {
+          setCount1(count1+1);
+        }
+      })
+      useLayoutEffect(() => {
+        if(count < 50) {
+          setCount(count+1);
+        }
+      })
+
+      return <h1>{count},{count1}</h1>;
+    }
+    ````
+    上面的代码不会出现count和count1增加的闪烁状态；但是如果把useLayoutEffect注释的话，那么就会出现从0到50的快速闪烁增加效果，就是前面提到的React 会等待浏览器完成画面渲染之后才会延迟调用 useEffect；而useLayoutEffect可以像在componentDidMount 或 componentDidUpdate调用setState所引起的重新渲染会在合并后一起展示到屏幕，不会看到中间状态。
