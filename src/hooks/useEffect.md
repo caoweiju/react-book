@@ -95,8 +95,10 @@ function Example() {
     }, [count]); // 仅在 count 更改时更新
     ````
     >如果你要使用此优化方式，请确保数组中包含了所有外部作用域中会随时间变化并且在 effect 中使用的变量，否则你的代码会引用到先前渲染中的旧变量。  
+
     如果想执行只运行一次的 effect（仅在组件挂载和卸载时执行），可以传递一个空数组（[]）作为第二个参数。这就告诉 React 你的 effect 不依赖于 props 或 state 中的任何值，所以它永远都不需要重复执行。这并不属于特殊情况 —— 它依然遵循依赖数组的工作方式。  
-    如果你传入了一个空数组（[]），effect 内部的 props 和 state 就会一直拥有其初始值。尽管传入 [] 作为第二个参数更接近大家更熟悉的 componentDidMount 和 componentWillUnmount 思维模式，但我们有更好的方式来避免过于频繁的重复调用 effect。除此之外，**请记得 React 会等待浏览器完成画面渲染之后才会延迟调用 useEffect，**因此会使得额外操作很方便。**需要注意这个和componentDidMount 或 componentDidUpdate不太一样，在componentDidMount 或 componentDidUpdate调用setState的话引起的重新渲染会合并后一起展示到屏幕，不会展示中间状态，但是useEffect会展示中间状态，不过可以使用useLayoutEffect来达到这个效果**  
+    如果你传入了一个空数组（[]），effect 内部的 props 和 state 就会一直拥有其初始值。尽管传入 [] 作为第二个参数更接近大家更熟悉的 componentDidMount 和 componentWillUnmount 思维模式，但我们有更好的方式来避免过于频繁的重复调用 effect。  
+    除此之外，**请记得 React 会等待浏览器完成画面渲染之后才会延迟调用 useEffect，**因此会使得额外操作很方便。**需要注意这个和componentDidMount 或 componentDidUpdate不太一样，在componentDidMount 或 componentDidUpdate调用setState的话引起的重新渲染会合并后一起展示到屏幕，不会展示中间状态，但是useEffect会展示中间状态，不过可以使用useLayoutEffect来达到这个效果**  
     ````jsx
     function Counter() {
       const [count, setCount] = useState(0);
