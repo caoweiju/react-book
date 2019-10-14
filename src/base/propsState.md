@@ -72,7 +72,7 @@ class Clock extends React.Component {
 
 使用state需要注意的：
 1. 不要直接修改 State，而应该`this.setState({comment: 'Hello'});`，或者`this.setState((preState) => ({comment: 'Hello'}));`
-2. State 的更新可能是异步的，出于性能考虑，React 可能会把多个 setState() 调用合并成一个调用。因为 this.props 和 this.state 可能会异步更新，所以你不要依赖他们的值来更新下一个状态。
+2. State 的更新可能是异步的【目前，在事件处理函数内部的 setState 是异步的】，出于性能考虑，React 可能会把多个 setState() 调用合并成一个调用。因为 this.props 和 this.state 可能会异步更新，所以你不要依赖他们的值来更新下一个状态。
     ````js
     // Correct
     this.setState((state, props) => ({
@@ -82,6 +82,53 @@ class Clock extends React.Component {
     });
     ````
 3. State 的更新会被合并，执行setState的时候，state值将会和已有的部分浅合并：`{...preState, ...newState}`
+
+### 关于setState的异步问题
+调用 setState 其实是可能是异步的【目前，在事件处理函数内部的 setState 是异步的】 —— 不要指望在调用 setState 之后，this.state 会立即映射为新的值。看下面的例子：
+````jsx
+incrementCount() {
+  // 注意：这样 *不会* 像预期的那样工作。
+  this.setState({count: this.state.count + 1});
+}
+
+handleSomething() {
+  // 假设 `this.state.count` 从 0 开始。
+  this.incrementCount();
+  this.incrementCount();
+  this.incrementCount();
+  // 当 React 重新渲染该组件时，`this.state.count` 会变为 1，而不是你期望的 3。
+
+  // 这是因为上面的 `incrementCount()` 函数是从 `this.state.count` 中读取数据的，
+  // 但是 React 不会更新 `this.state.count`，直到该组件被重新渲染。
+  // 所以最终 `incrementCount()` 每次读取 `this.state.count` 的值都是 0，并将它设为 1。
+
+  // 问题的修复参见下面的说明。
+}
+
+````
+执行三次incrementCount来setState，但是由于异步的原因，呆滞每次获取的state并不是上一次调用incrementCount设置的值，而是当前的初始值0；所以最后的结果是调用了三次，但是结果是1；
+
+解决方法：给 setState 传递一个函数，
+
+传递一个函数可以让你在函数内访问到当前的 state 的值。因为 setState 的调用是分批的，所以你可以链式地进行更新，并确保它们是一个建立在另一个之上的，这样才不会发生冲突：
+````jsx
+incrementCount() {
+  this.setState((state) => {
+    // 重要：在更新的时候读取 `state`，而不是 `this.state`。
+    return {count: state.count + 1}
+  });
+}
+
+handleSomething() {
+  // 假设 `this.state.count` 从 0 开始。
+  this.incrementCount();
+  this.incrementCount();
+  this.incrementCount();
+
+  // 如果你现在在这里读取 `this.state.count`，它还是会为 0。
+  // 但是，当 React 重新渲染该组件时，它会变为 3。
+}
+````
 
 ## 数据流概念
 不管是父组件或是子组件都无法知道某个组件是有状态的还是无状态的，并且它们也并不关心它是函数组件还是 class 组件。，通常会被叫做“自上而下”或是“单向”的数据流。组件可以选择把它的 state 作为 props 向下传递到它的子组件中，任何的 state 总是所属于特定的组件，而且从该 state 派生的任何数据或 UI 只能影响树中“低于”它们的组件。

@@ -63,6 +63,70 @@ function Example() {
 4. 调用 useState 方法的时候具体就是：定义一个 “state 变量”。我们的变量叫 count， 但是我们可以叫他任何名字，并且定义一个修改该“state 变量”count的方法setCount，正常而言在函数组件执行完成之后变量count的方法setCount就就会”消失”，但是react保存了这些变量，从而达到count和setCount在函数组件中一直被保存的效果，这样就和class组件的state可以起一样的作用了。
 5. 因为hook是函数组件中直接调用的方法，所以在每次mount或者update时运行函数组件就会顺序运行hook，不过useState这个hook有一个特性，就是第一次执行useState的时候会创建一个state变量和设置变量的方法，但是之后的update引起的执行useState只会返回之前最开始创建的state变量和设置变量的方法，就是前面提到的useState的返回值在第一次执行的时候创建并一直被保存，后面执行的时候直接返回即可。
 
+**需要注意：和class组件的setState一样，Hook的useState返回的setState也是异步的，并不是在执行setState之后就可以获取到最新的state值得**
+````jsx
+import React, { useReducer, useState, useEffect } from "react";
+import ReactDOM from "react-dom";
+import "./styles.css";
+
+function Counter() {
+  // First render will create the state, and it will
+  // persist through future renders
+  const [count, setCount] = useState(0);
+  const [sum, dispatch] = useReducer((state, action) => {
+    return state + action;
+  }, 0);
+  useEffect(() => {
+    setCount(count + 1);
+    setCount(count + 1);
+  }, [sum])
+  return (
+    <>
+      {sum}
+
+      <button onClick={() => dispatch(1)}>Add 1</button>
+    </>
+  );
+}
+
+ReactDOM.render(<Counter />, document.querySelector("#root"));
+````
+
+上面的示例中的useEffect中连续调用了两次setCount，但是在调用间隔中查看结果还是一样都为上次一的结果0；因为异步的原因，setCount之后获取到的还是当前的count值，所以执行两次后count只是+1，可以改成使用函数来更新count；
+````jsx
+useEffect(() => {
+    setCount(count => count + 1);
+    setCount(count => count + 1);
+  }, [sum])
+````
+这样，执行完两次setCount，更新后的数据就是+2了。
+
+### 惰性初始 state
+useState的第一个参数initialState 只会在组件的初始渲染中起作用，后续渲染执行useState的时候会被忽略而返回之前保存的内容。
+
+如果初始 state 需要通过复杂计算获得，则可以传入一个函数，在函数中计算并返回初始的 state，同样此函数只在初始渲染时被调用：
+````js
+const [state, setState] = useState(() => {
+  const initialState = someExpensiveComputation(props);
+  return initialState;
+});
+````
+
+### 函数式更新state
+在Hook返回的setState是通过替换来完成state更新，而不是合并，那么如果新的 state 需要通过使用先前的 state 计算得出，开发者可以将函数传递给 setState。该函数将接收先前的 state，并返回一个更新后的值。下面的计数器组件示例展示了 setState 的两种用法：
+````js
+function Counter({initialCount}) {
+  const [count, setCount] = useState(initialCount);
+  return (
+    <>
+      Count: {count}
+      <button onClick={() => setCount(initialCount)}>Reset</button>
+      <button onClick={() => setCount(prevCount => prevCount - 1)}>-</button>
+      <button onClick={() => setCount(prevCount => prevCount + 1)}>+</button>
+    </>
+  );
+}
+````
 
 ### 使用多个 state 变量
 
