@@ -63,7 +63,7 @@ function Example() {
 4. 调用 useState 方法的时候具体就是：定义一个 “state 变量”。我们的变量叫 count， 但是我们可以叫他任何名字，并且定义一个修改该“state 变量”count的方法setCount，正常而言在函数组件执行完成之后变量count的方法setCount就就会”消失”，但是react保存了这些变量，从而达到count和setCount在函数组件中一直被保存的效果，这样就和class组件的state可以起一样的作用了。
 5. 因为hook是函数组件中直接调用的方法，所以在每次mount或者update时运行函数组件就会顺序运行hook，不过useState这个hook有一个特性，就是第一次执行useState的时候会创建一个state变量和设置变量的方法，但是之后的update引起的执行useState只会返回之前最开始创建的state变量和设置变量的方法，就是前面提到的useState的返回值在第一次执行的时候创建并一直被保存，后面执行的时候直接返回即可。
 
-**需要注意：和class组件的setState一样，Hook的useState返回的setState也是异步的，并不是在执行setState之后就可以获取到最新的state值得**
+**需要注意：和class组件的setState一样，Hook的useState返回的setState也可能是异步的，并不是在执行setState之后就可以获取到最新的state值得**
 ````jsx
 import React, { useReducer, useState, useEffect } from "react";
 import ReactDOM from "react-dom";

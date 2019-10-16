@@ -40,3 +40,76 @@ const [state, setState] = useState(initialState);
 ## useContext
 
 
+
+## useReducer
+`const [state, dispatch] = useReducer(reducer, initialArg, init);`
+- 第一个参数reducer是dispatch执行时需要调用的方法
+- 第二个参数是：initialArg 看情况而定
+    - 如果没有第三个参数init，那么第二个参数initialArg就是初始useReducer state值
+    - 如果存在第三个参数init，且init是一个函数，那么第二个参数initialArg将作为第三个参数init的参数使用
+- 第三个参数init 是一个函数，用来第一次运行useReducer获取初始useReducer state值,该函数以第二个参数initialArg为运行参数，返回初始state值；
+
+useState 的替代方案。它接收一个形如 (state, action) => newState 的 reducer，并返回当前的 state 以及与其配套的 dispatch 方法【类似redux的使用】。
+
+>在某些场景下，useReducer 会比 useState 更适用，例如 state 逻辑较复杂且包含多个子值，或者下一个 state 依赖于之前的 state 等。并且，使用 useReducer 还能给那些会触发深更新的组件做性能优化，因为你可以向子组件传递 dispatch 而不是回调函数 。
+
+### 指定初始state
+有两种不同初始化 useReducer state 的方式，你可以根据使用场景选择其中的一种。
+
+1. 将初始 state 作为第二个参数传入 useReducer 是最简单的方法：
+    ````js
+    const [state, dispatch] = useReducer(
+        reducer,
+        {count: initialCount}
+    );
+    ````
+2. 也可以像useState一样来惰性初始化
+    ````js
+    const [state, dispatch] = useReducer(
+        reducer,
+        {count: initialCount},
+        (initArg) => {
+            return {
+                data: initArg
+            }
+        }
+    );
+    // 初始state将会是： {data: {count: initialCount}}
+    ````
+
+**如果 Reducer Hook 的返回值与当前 state 相同，React 将跳过子组件的渲染及副作用的执行【前提是当前更新只有dispatch引起了变化】。（React 使用 Object.is 比较算法 来比较 state。）**
+
+## useCallback
+````js
+const memoizedCallback = useCallback(
+  () => {
+    doSomething(a, b);
+  },
+  [a, b],
+);
+
+````
+参数：
+- 第一个参数是函数，等待memoized【内存化】的函数；
+- 第二参数是数组，函数中所使用的外部变量列表，以便在变量变化时来更新这个memoized【内存化】回调函数；
+ 
+返回一个memoized【内存化】回调函数。类似于会一直被保存的函数，而不会在每次执行函数组件进行渲染的时候重新生成一个新的函数；把内联回调函数及依赖项数组作为参数传入 useCallback，它将返回该回调函数的 memoized 版本，该回调函数仅在某个依赖项改变时才会更新。这对于作为其他子组件props的函数而言来使用，配合shouldComponentUpdate或者meno来达到优化避免不必要的渲染；
+
+**切记：一定要将useCallback中的函数所使用的外部变量都放入第二个参数deps数组中，不然你的函数中访问的外部变量可能会由于闭包的原因访问到上一次渲染时的值，**
+
+
+## useMemo
+
+
+## useRef
+
+
+## useImperativeHandle
+
+
+## useLayoutEffect
+
+
+## useDebugValue
+
+
