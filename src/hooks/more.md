@@ -102,7 +102,39 @@ const memoizedCallback = useCallback(
 
 
 ## useRef
+`const refContainer = useRef(initialValue);`
 
+useRef 返回一个可变的 ref 对象，其 .current 属性被初始化为传入的参数（initialValue）。返回的 ref 对象在组件的整个生命周期内保持不变。
+
+````jsx
+function TextInputWithFocusButton() {
+  const [inputValue, setInputValue] = useState('')
+  const inputEl = useRef(null);
+  const onButtonClick = () => {
+    // `current` 指向已挂载到 DOM 上的文本输入元素
+    inputEl.current.focus();
+  };
+  const changeInput = useCallback(
+      () => {
+          const value = inputEl.current.value;
+          setInputValue(value.trim());
+      },
+      [inputEl]
+  )
+  return (
+    <>
+      <input ref={inputEl} type="text" onChange={changeInput} />
+      <button onClick={onButtonClick}>Focus the input</button>
+    </>
+  );
+}
+````
+
+上面是一个常见的react使用Ref的场景，只是使用了uesRef而不是 createRef；
+
+然而，useRef() 比 ref 属性更有用。它可以很方便地保存任何可变值，其类似于在 class 中使用实例字段的方式。这是因为它创建的是一个普通 Javascript 对象。而且 useRef() 和自建一个 {current: ...} 对象的唯一区别是，useRef 会在每次渲染时返回同一个 ref 对象，而不是在每次更新执行函数组件的时候重新生成一个字面量对象。
+
+**ref的内容发生变更时，并不会引起组件的重新渲染，就和class组件的实例对象一样，可以通过useCallback来配合setState来达到变更效果，类似上面的例子所示**
 
 ## useImperativeHandle
 
