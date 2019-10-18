@@ -23,6 +23,7 @@
     * [react提供的其他全部hooks](src/hooks/more.md)
     * [hooks的规则和自定义hooks](src/hooks/rule-selfdefine.md)
     * [hooks的实践深入](src/hooks/advance.md)
+    * [hooks的较好使用实践](src/hooks/optimize.md)
 * [顶层API的学习和使用](src/api/readme.md)
     * [React的公开API](src/api/topapi.md)
     * [React.Component的公开API](src/api/component.md)

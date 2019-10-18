@@ -24,6 +24,7 @@ const [state, setState] = useState(initialState);
 - setState 这里的setState可以命名为其他的，而且是执行setState将会直接替换原有的state，而不是合并；
 - setState 可能是异步的过程，所以如果更新state依赖之前的state，请使用函数作为setState的参数来更新state；
 - useState 是在函数组件或者自定义Hook中使用的，所以无论在mount还是update的时候都会被执行，但是update过程的执行不会重新生成state，而是返回最新的state和setState方法；
+- **注意：state中保留的最好是会影响渲染的数据，如果只是想要一个类似实例数据持久化，那么请使用useRef**
 
 更多详细内容参考：[useEffect的使用简析](./useState.md)
 
