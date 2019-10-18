@@ -142,13 +142,13 @@ react让我们可以为 class 组件声明一些特殊的方法，当组件挂�
 3. 16.4及以后
 
 先看看16.2以前版本：
-![16.2的生命周期](../../asset/imgs/reactlifecircle16-2.png)
+![16.2的生命周期](http://pzdgkztjy.bkt.clouddn.com/book/react/img/reactlifecircle16-2.png)
 
 再看看16.3的生命周期
-![16.2的生命周期](../../asset/imgs/reactlifecircle16-3.png)
+![16.2的生命周期](http://pzdgkztjy.bkt.clouddn.com/book/react/img/reactlifecircle16-3.png)
 
 再看看16.4及以后的
-![16.2的生命周期](../../asset/imgs/reactlifecircle16-4.png)
+![16.2的生命周期](http://pzdgkztjy.bkt.clouddn.com/book/react/img/reactlifecircle16-4.png)
 
 
 

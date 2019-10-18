@@ -215,4 +215,4 @@ class Example extends React.Component {
 
 React.render(<Example />, document.getElementById('app'))
 ````
-![界面表现](./../../asset/imgs/key_index.png)
+![界面表现](http://pzdgkztjy.bkt.clouddn.com/book/react/img/key_index.png)
