@@ -39,8 +39,58 @@ const [state, setState] = useState(initialState);
 更多详细内容参考：[useEffect的使用简析](./useEffect.md)
 
 ## useContext
+使用：`const value = useContext(MyContext)`  
+接收一个 context 对象（React.createContext 的返回值）并返回该 context 的当前值。当前的 context 值由上层组件中距离当前组件最近的 <MyContext.Provider> 的 value prop 决定。
 
+当组件上层最近的 <MyContext.Provider> 更新时，该 Hook 会触发重渲染，并使用最新传递给 MyContext provider 的 context value 值。
 
+别忘记 useContext 的参数必须是 context 对象本身：
+- 正确： useContext(MyContext)
+- 错误： useContext(MyContext.Consumer)
+- 错误： useContext(MyContext.Provider)
+
+>如果你在接触 Hook 前已经对 context API 比较熟悉，那应该可以理解，useContext(MyContext) 相当于 class 组件中的 static contextType = MyContext 或者 <MyContext.Consumer>。
+
+````jsx
+const themes = {
+  light: {
+    foreground: "#000000",
+    background: "#eeeeee"
+  },
+  dark: {
+    foreground: "#ffffff",
+    background: "#222222"
+  }
+};
+
+const ThemeContext = React.createContext(themes.light);
+
+function App() {
+  return (
+    <ThemeContext.Provider value={themes.dark}>
+      <Toolbar />
+    </ThemeContext.Provider>
+  );
+}
+
+function Toolbar(props) {
+  return (
+    <div>
+      <ThemedButton />
+    </div>
+  );
+}
+
+function ThemedButton() {
+  const theme = useContext(ThemeContext);
+
+  return (
+    <button style={{ background: theme.background, color: theme.foreground }}>
+      I am styled by theme context!
+    </button>
+  );
+}
+````
 
 ## useReducer
 `const [state, dispatch] = useReducer(reducer, initialArg, init);`
@@ -100,6 +150,19 @@ const memoizedCallback = useCallback(
 
 
 ## useMemo
+使用：`const memoizedValue = useMemo(() => computeExpensiveValue(a, b), [a, b])`  
+返回一个 memoized 值。
+
+把“创建”函数和依赖项数组作为参数传入 useMemo，它仅会在某个依赖项改变时才重新计算 memoized 值。这种优化有助于避免在每次渲染时都进行高开销的计算。
+
+>记住，传入 useMemo 的函数会在渲染期间执行。请不要在这个函数内部执行与渲染无关的操作，诸如副作用这类的操作属于 useEffect 的适用范畴，而不是 useMemo。
+
+**如果没有提供依赖项数组，useMemo 在每次渲染时都会计算新的值。**
+
+你可以把 useMemo 作为性能优化的手段，但不要把它当成语义上的保证。将来，React 可能会选择“遗忘”以前的一些 memoized 值，并在下次渲染时重新计算它们，比如为离屏组件释放内存。先编写在没有 useMemo 的情况下也可以执行的代码 —— 之后再在你的代码中添加 useMemo，以达到优化性能的目的。
+
+
+>依赖项数组不会作为参数传给“创建”函数。虽然从概念上来说它表现为：所有“创建”函数中引用的值都应该出现在依赖项数组中。
 
 
 ## useRef
@@ -138,11 +201,60 @@ function TextInputWithFocusButton() {
 **ref的内容发生变更时，并不会引起组件的重新渲染，就和class组件的实例对象一样，可以通过useCallback来配合setState来达到变更效果，类似上面的例子所示**
 
 ## useImperativeHandle
+使用：`useImperativeHandle(ref, createHandle, [deps])`  
+useImperativeHandle 可以让你在使用 ref 时自定义暴露给父组件的实例值。在大多数情况下，应当避免使用 ref 这样的命令式代码。useImperativeHandle 应当与 forwardRef 一起使用：
+````jsx
+function FancyInput(props, ref) {
+  const inputRef = useRef();
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      inputRef.current.focus();
+    }
+  }));
+  return <input ref={inputRef} ... />;
+}
+FancyInput = forwardRef(FancyInput);
+````
+在本例中，渲染 <FancyInput ref={fancyInputRef} /> 的父组件可以调用 fancyInputRef.current.focus()。
+
 
 
 ## useLayoutEffect
+其函数签名与 useEffect 相同，但它会在所有的 DOM 变更之后同步调用 effect。可以使用它来读取 DOM 布局并同步触发重渲染。在浏览器执行绘制之前，useLayoutEffect 内部的更新计划将被同步刷新。
 
+尽可能使用标准的 useEffect 以避免阻塞视觉更新。
+
+>如果你正在将代码从 class 组件迁移到使用 Hook 的函数组件，则需要注意 useLayoutEffect 与 componentDidMount、componentDidUpdate 的调用阶段是一样的【特别是期间有引起update的操作会被合并后一起渲染出来，避免中间态的产生】。但是，我们推荐你一开始先用 useEffect，只有当它出问题的时候再尝试使用 useLayoutEffect。
+- 如果你使用服务端渲染，请记住，无论 useLayoutEffect 还是 useEffect 都无法在 Javascript 代码加载完成之前执行。这就是为什么在服务端渲染组件中引入 useLayoutEffect 代码时会触发 React 告警。解决这个问题，需要将代码逻辑移至 useEffect 中（如果首次渲染不需要这段逻辑的情况下），或是将该组件延迟到客户端渲染完成后再显示（如果直到 useLayoutEffect 执行之前 HTML 都显示错乱的情况下）。
+- 若要从服务端渲染的 HTML 中排除依赖布局 effect 的组件，可以通过使用 showChild && <Child /> 进行条件渲染，并使用 useEffect(() => { setShowChild(true); }, []) 延迟展示组件。这样，在客户端渲染完成之前，UI 就不会像之前那样显示错乱了。
 
 ## useDebugValue
+使用：`useDebugValue(value)`  
+useDebugValue 可用于在 React 开发者工具中显示自定义 hook 的标签。
 
+例如，“自定义 Hook” 章节中描述的名为 useFriendStatus 的自定义 Hook：
+````jsx
+function useFriendStatus(friendID) {
+  const [isOnline, setIsOnline] = useState(null);
+
+  // ...
+
+  // 在开发者工具中的这个 Hook 旁边显示标签
+  // e.g. "FriendStatus: Online"
+  useDebugValue(isOnline ? 'Online' : 'Offline');
+
+  return isOnline;
+}
+````
+
+我们不推荐你向每个自定义 Hook 添加 debug 值。当它作为共享库的一部分时才最有价值。
+
+延迟格式化 debug 值
+在某些情况下，格式化值的显示可能是一项开销很大的操作。除非需要检查 Hook，否则没有必要这么做。
+
+因此，useDebugValue 接受一个格式化函数作为可选的第二个参数。该函数只有在 Hook 被检查时才会被调用。它接受 debug 值作为参数，并且会返回一个格式化的显示值。
+
+例如，一个返回 Date 值的自定义 Hook 可以通过格式化函数来避免不必要的 toDateString 函数调用：
+
+useDebugValue(date, date => date.toDateString());
 
