@@ -130,6 +130,44 @@ useState 的替代方案。它接收一个形如 (state, action) => newState 的
 
 **如果 Reducer Hook 的返回值与当前 state 相同，React 将跳过子组件的渲染及副作用的执行【前提是当前更新只有dispatch引起了变化】。（React 使用 Object.is 比较算法 来比较 state。）**
 
+### demo
+在业务的交互额逻辑复杂的时候应该考虑使用useReducer，下面是一个比较完整的useReducer的示例：
+````jsx
+function init(initialCount) {
+  return {count: initialCount};
+}
+
+function reducer(state, action) {
+  switch (action.type) {
+    case 'increment':
+      return {count: state.count + 1};
+    case 'decrement':
+      return {count: state.count - 1};
+    case 'reset':
+      return init(action.payload);
+    default:
+      throw new Error();
+  }
+}
+
+function Counter({initialCount}) {
+  const [state, dispatch] = useReducer(reducer, initialCount, init);
+  return (
+    <>
+      Count: {state.count}
+      <button
+        onClick={() => dispatch({type: 'reset', payload: initialCount})}>
+
+        Reset
+      </button>
+      <button onClick={() => dispatch({type: 'decrement'})}>-</button>
+      <button onClick={() => dispatch({type: 'increment'})}>+</button>
+    </>
+  );
+}
+
+````
+
 ## useCallback
 ````js
 const memoizedCallback = useCallback(
