@@ -8,6 +8,10 @@
 - 使用单个state会使得state的粒度过粗，代码的可复用性就会降低
 多个还是单个：相关联/更新时依赖上一次的值的情况使用单个Object或者配合useReducer；不相关的分开到不同的useState
 
+多个state的引起非问题：
+- 当存在多个state的时候，在useEffect或者交互中，顺序调用多个setState的时候，多个setState可能会引起多次渲染，而不是合并渲染，需要注意是否存在依赖关系，特别是数据data和状态status被分离时需要注意；
+- 需要结合场景来具体分析，避免过多的依赖的同时，也要避免过度的rerender；
+
 建议：
 1. 将完全不相关的 state 拆分为多组 state。比如 size 和 position。
 2. 如果某些 state 是相互关联的，或者需要一起发生改变，就可以把它们合并为一组 state。比如
